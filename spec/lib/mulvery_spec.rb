@@ -3,6 +3,29 @@ require "imulvery"
 
 require "rx"
 
+describe "Observable" do
+  it "can be generated from array" do
+    array = [1, 2, 3, 4]
+    Mulvery::Observable.from_array(array)
+  end
+
+  it "will be zipped with Observables" do
+    array1 = [1, 2, 3, 4]
+    array2 = [1, 2, 3, 4]
+    array3 = [1, 2, 3, 4]
+    ob1 = Mulvery::Observable.from_array(array1)
+    ob2 = Mulvery::Observable.from_array(array2)
+    ob3 = Mulvery::Observable.from_array(array3)
+
+    zipped = ob1.zip(ob2)
+    zipped = ob1.zip(ob2, ob3)
+
+    expect {
+      zipped = ob1.zip(array1)
+    }.to raise_error(RuntimeError)
+  end
+end
+
 describe "Mulvery" do
   before do
     @instance = IMulvery::BlockDiagram.new
