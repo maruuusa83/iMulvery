@@ -1,3 +1,5 @@
+require_relative './mulvery'
+
 require_relative './module_renderer'
 require 'pango'
 
