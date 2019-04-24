@@ -24,6 +24,23 @@ describe "Observable" do
       zipped = ob1.zip(array1)
     }.to raise_error(RuntimeError)
   end
+
+  it "can reduce its stream" do
+    ob1 = Mulvery::Observable.from_array([1, 2, 3, 4])
+
+    ob1.reduce { |reg, d|
+      reg += d
+    }
+  end
+
+  it "s reduce can be called after zip" do
+    ob1 = Mulvery::Observable.from_array([1, 2, 3, 4])
+    ob2 = Mulvery::Observable.from_array([1, 2, 3, 4])
+
+    ob1.zip(ob2).reduce { |reg, d|
+      reg += d[0] + d[1]
+    }
+  end
 end
 
 describe "Mulvery" do

@@ -23,6 +23,12 @@ class Observable
     return self
   end
 
+  def reduce(&blk)
+    _add_module(ObservableNode.new(:reduce, {lambda_abs: blk}))
+
+    return self
+  end
+
   private
   def _add_module(source)
     if !source.kind_of?(ObservableNode)
