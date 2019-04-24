@@ -15,11 +15,15 @@ class Matrix
   end
 
   def transpose
-    return @data[0].zip(*@data[1..-1])
+    return Matrix.new(@data[0].zip(*@data[1..-1]))
   end
 
   def transpose!
     return @data = @data[0].zip(*@data[1..-1])
+  end
+
+  def to_array
+    return @data
   end
 
   def row_size

@@ -17,10 +17,10 @@ describe "Matrix" do
 
   it "can transpose itself" do
     result = Mulvery::Matrix.new([[1, 2, 3]]).transpose
-    expect(result).to eq([[1], [2], [3]])
+    expect(result.to_array).to eq([[1], [2], [3]])
 
     result = Mulvery::Matrix.new([[1, 2, 3], [4, 5, 6], [7, 8, 9]]).transpose
-    expect(result).to eq([[1, 4, 7], [2, 5, 8], [3, 6, 9]])
+    expect(result.to_array).to eq([[1, 4, 7], [2, 5, 8], [3, 6, 9]])
   end
 end
 

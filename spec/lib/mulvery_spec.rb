@@ -1,5 +1,6 @@
 require "spec_helper"
 require "imulvery"
+require "matrix"
 
 require "rx"
 
@@ -53,11 +54,13 @@ describe "Mulvery" do
                 [2, 2, 2, 2],
                 [3, 3, 3, 3],
                 [4, 4, 4, 4]]
-    matrix_2 = [[1, 2, 3, 4],
-                [1, 2, 3, 4],
-                [1, 2, 3, 4],
-                [1, 2, 3, 4]]
+    matrix_2 = [[1, 1, 1, 1],
+                [2, 2, 2, 2],
+                [3, 3, 3, 3],
+                [4, 4, 4, 4]]
 
+    matrix_2 = Mulvery::Matrix.new(matrix_2).transpose.to_array
+    
     result = matrix_2.map { |vec_2|
       matrix_1.map { |vec_1|
         v_1_o = Rx::Observable.from_array(vec_1)
