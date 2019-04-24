@@ -2,7 +2,7 @@ module Mulvery
 
 class Observable
   def initialize(source)
-    @module_list = [source]
+    @data_path = []
 
     _add_module(source)
   end
@@ -29,13 +29,22 @@ class Observable
     return self
   end
 
+  def dump
+    count = 0
+    @data_path.each do |element|
+      print "#{count}: #{element.type}, #{element.info}\n"
+
+      count += 1
+    end
+  end
+
   private
   def _add_module(source)
     if !source.kind_of?(ObservableNode)
         raise RuntimeError, "Illigal argment type, expected ObservableNode"
     end
 
-    @module_list.push(source)
+    @data_path.push(source)
   end
 
   class ObservableNode
@@ -43,6 +52,8 @@ class Observable
       @type = type
       @info = info
     end
+
+    attr_accessor :type, :info
   end
 end
 

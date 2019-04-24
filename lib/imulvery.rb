@@ -5,6 +5,10 @@ require 'pango'
 
 module IMulvery
   class BlockDiagram
+    def self.from_observable(observable)
+      return BlockDiagram.new
+    end
+
     def initialize()
       @modules = []
     end
