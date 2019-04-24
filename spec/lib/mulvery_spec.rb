@@ -76,8 +76,6 @@ describe "Mulvery" do
         v.subscribe { |e| check.push(e) }
       }
     }
-
-    p check
   end
 end
 
