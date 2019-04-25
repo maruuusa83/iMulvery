@@ -70,7 +70,8 @@ class BlockDiagram
         .new(
           mod_info[:name],
           mod_info[:inputs],
-          mod_info[:outputs])
+          mod_info[:outputs],
+          mod_info[:pos])
 
       pos_x += mr.width + 30
     end
@@ -84,7 +85,8 @@ class BlockDiagram
           .new(
             mod[:name],
             mod[:inputs],
-            mod[:outputs])
+            mod[:outputs],
+            mod[:pos])
           .render(context)
 
         context.paint(1)

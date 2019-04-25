@@ -17,14 +17,5 @@ describe "BlockDiagram" do
 
     result = instance.build_map
   end
-
-  it "can generate a block design" do
-    @instance = IMulvery::BlockDiagram.new
-    @instance.add_module(
-      "test_module",
-      {clk: 1, din: 32, valid: 1},
-      {result: 32, enable: 1})
-    result = @instance.read
-  end
 end
 

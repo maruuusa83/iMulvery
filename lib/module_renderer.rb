@@ -7,10 +7,11 @@ module IMulvery
     
     attr_accessor :width, :height, :module_width, :module_height
 
-    def initialize(name, inputs, outputs)
+    def initialize(name, inputs, outputs, pos)
       @name = name
       @inputs = inputs
       @outputs = outputs
+      @pos = pos
 
       surface = Cairo::ImageSurface.new(Cairo::FORMAT_ARGB32, 300, 200)
       context = Cairo::Context.new(surface)
@@ -46,6 +47,7 @@ module IMulvery
 
     def render(context)
       @context = context
+
       @context.push_group do
         # body
         @context.translate(PIN_LEN, 0)
