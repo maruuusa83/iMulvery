@@ -7,6 +7,8 @@ class Observable
     _add_module(source)
   end
 
+  attr_accessor :data_path
+
   def self.from_array(array)
     Observable.new(ObservableNode.new(:source, {type: :from_array, array: array}))
   end
@@ -38,6 +40,15 @@ class Observable
     end
   end
 
+  class ObservableNode
+    def initialize(type, info)
+      @type = type
+      @info = info
+    end
+
+    attr_accessor :type, :info
+  end
+
   private
   def _add_module(source)
     if !source.kind_of?(ObservableNode)
@@ -47,14 +58,6 @@ class Observable
     @data_path.push(source)
   end
 
-  class ObservableNode
-    def initialize(type, info)
-      @type = type
-      @info = info
-    end
-
-    attr_accessor :type, :info
-  end
 end
 
 end

@@ -103,6 +103,8 @@ module IMulvery
           end
         end
       end
+
+      return self
     end
 
   end
