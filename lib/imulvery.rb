@@ -32,65 +32,72 @@ class BlockDiagram
   end
 
   def build_map
+    # Generate Modules
+    modules = []
+    max_width = 0
+    pos_y = 10
+    @observables.each do |observable|
+      pos_x = 10
+      max_height = 0
+
+      observable.data_path.each do |mod|
+        mod_info = {}
+        
+        case mod.type
+        when :source then
+          mod_info = {name: "src", inputs: {}, outputs: {out: 1}, pos: [pos_x, pos_y]}
+        when :zip then
+          inputs = {}
+          for i in 0..mod.info[:observables].size
+            inputs["din_#{i}"] = 1
+          end
+          mod_info = {name: "zip", inputs: inputs, outputs: {out: 1}, pos: [pos_x, pos_y]}
+          mod.info[:observables].each do |obs|
+            @observables.push(obs)
+          end
+        when :reduce then
+          mod_info = {name: "reduce", inputs: {in: 1}, outputs: {out: 1}, pos: [pos_x, pos_y]}
+        when :subscribe then
+          mod_info = {name: "subscribe", inputs: {in: 1}, outputs: {}, pos: [pos_x, pos_y]}
+        end
+
+        mr = ModuleRenderer
+          .new(
+            mod_info[:name],
+            mod_info[:inputs],
+            mod_info[:outputs],
+            mod_info[:pos])
+
+        modules.push(mr)
+
+        pos_x += mr.width + 30
+        if max_height < mr.height
+          max_height = mr.height
+        end
+      end
+
+      if max_width < pos_x
+        max_width = pos_x
+      end
+
+      pos_y += max_height + 20
+    end
+
     # Initialize Cairo
-    surface = Cairo::ImageSurface.new(Cairo::FORMAT_ARGB32, 1000, 800)
+    canbus_width  = max_width + 10
+    canbus_height = pos_y + 10
+    surface = Cairo::ImageSurface.new(Cairo::FORMAT_ARGB32, canbus_width, canbus_height)
     context = Cairo::Context.new(surface)
 
     # Write Backgrownd
     context.set_source_rgb(0.9, 0.9, 0.9)
-    context.rectangle(0, 0, 1000, 800)
+    context.rectangle(0, 0, canbus_width, canbus_height)
     context.fill
 
-    # Generate Modules
-    modules = []
-    pos_x = 10
-    pos_y = 10
-    @observables[0].data_path.each do |mod|
-      mod_info = {}
-      
-      case mod.type
-      when :source then
-        mod_info = {name: "src", inputs: {}, outputs: {out: 1}, pos: [pos_x, pos_y]}
-      when :zip then
-        inputs = {}
-        for i in 0..mod.info[:observables].size
-          inputs["din_#{i}"] = 1
-        end
-        mod_info = {name: "zip", inputs: inputs, outputs: {out: 1}, pos: [pos_x, pos_y]}
-        mod.info[:observables].each do |obs|
-          @observables.push(obs)
-        end
-      when :reduce then
-        mod_info = {name: "reduce", inputs: {in: 1}, outputs: {out: 1}, pos: [pos_x, pos_y]}
-      end
-
-      modules.push(mod_info)
-
-      mr = ModuleRenderer
-        .new(
-          mod_info[:name],
-          mod_info[:inputs],
-          mod_info[:outputs],
-          mod_info[:pos])
-
-      pos_x += mr.width + 30
-    end
-
     # Write Modules
-    modules.each do |mod|
-      context.save do
-        context.translate(mod[:pos][0], mod[:pos][1])
-
-        mr = ModuleRenderer
-          .new(
-            mod[:name],
-            mod[:inputs],
-            mod[:outputs],
-            mod[:pos])
-          .render(context)
-
-        context.paint(1)
-      end
+    modules[0].render(context)
+    for i in 1...modules.size
+      modules[i].render(context)
     end
 
 

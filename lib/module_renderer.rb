@@ -48,62 +48,68 @@ module IMulvery
     def render(context)
       @context = context
 
-      @context.push_group do
-        # body
-        @context.translate(PIN_LEN, 0)
+      @context.save do
+        @context.translate(@pos[0], @pos[1])
 
-        @context.set_source_rgb(0.6, 0.7, 1)
-        @context.rounded_rectangle(0, 0, @module_width, @module_height, 8)
-        @context.fill
+        @context.push_group do
+          # body
+          @context.translate(PIN_LEN, 0)
 
-        @context.save do
-          @context.translate((@module_width - @name_size[0]) / 2, (@module_height - @name_size[1]) / 2)
-          
-          @context.set_source_rgb(0, 0, 0)
-          pl = @context.create_pango_layout
-          pl.text = @name
-          @context.show_pango_layout(pl)
-        end
+          @context.set_source_rgb(0.6, 0.7, 1)
+          @context.rounded_rectangle(0, 0, @module_width, @module_height, 8)
+          @context.fill
 
-        # input pins
-        pin_span = @module_height / (@inputs.length + 1)
-        @context.save do
-          @context.set_source_rgb(0, 0, 0)
+          @context.save do
+            @context.translate((@module_width - @name_size[0]) / 2, (@module_height - @name_size[1]) / 2)
+            
+            @context.set_source_rgb(0, 0, 0)
+            pl = @context.create_pango_layout
+            pl.text = @name
+            @context.show_pango_layout(pl)
+          end
 
-          @inputs.each do |key, bass_width|
-            @context.translate(0, pin_span)
-            @context.rectangle(0, 0, -PIN_LEN, PIN_WID)
-            @context.fill
+          # input pins
+          pin_span = @module_height / (@inputs.length + 1)
+          @context.save do
+            @context.set_source_rgb(0, 0, 0)
 
-            @context.save do
-              pl = @context.create_pango_layout
-              pl.text = key.to_s
-              size = pl.pixel_size
-              @context.translate(4, -size[1] / 2)
-              @context.show_pango_layout(pl)
+            @inputs.each do |key, bass_width|
+              @context.translate(0, pin_span)
+              @context.rectangle(0, 0, -PIN_LEN, PIN_WID)
+              @context.fill
+
+              @context.save do
+                pl = @context.create_pango_layout
+                pl.text = key.to_s
+                size = pl.pixel_size
+                @context.translate(4, -size[1] / 2)
+                @context.show_pango_layout(pl)
+              end
+            end
+          end
+
+          pin_span = @module_height / (@outputs.length + 1)
+          @context.save do
+            @context.translate(module_width, 0)
+            @context.set_source_rgb(0, 0, 0)
+
+            @outputs.each do |key, bass_width|
+              @context.translate(0, pin_span)
+              @context.rectangle(0, 0, PIN_LEN, PIN_WID)
+              @context.fill
+
+              @context.save do
+                pl = @context.create_pango_layout
+                pl.text = key.to_s
+                size = pl.pixel_size
+                @context.translate(-size[0] - 4, -size[1] / 2)
+                @context.show_pango_layout(pl)
+              end
             end
           end
         end
 
-        pin_span = @module_height / (@outputs.length + 1)
-        @context.save do
-          @context.translate(module_width, 0)
-          @context.set_source_rgb(0, 0, 0)
-
-          @outputs.each do |key, bass_width|
-            @context.translate(0, pin_span)
-            @context.rectangle(0, 0, PIN_LEN, PIN_WID)
-            @context.fill
-
-            @context.save do
-              pl = @context.create_pango_layout
-              pl.text = key.to_s
-              size = pl.pixel_size
-              @context.translate(-size[0] - 4, -size[1] / 2)
-              @context.show_pango_layout(pl)
-            end
-          end
-        end
+        @context.paint(1)
       end
 
       return self

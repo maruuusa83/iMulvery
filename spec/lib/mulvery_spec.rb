@@ -44,6 +44,42 @@ describe "Observable" do
   end
 end
 
+describe "InputBus" do
+  it "shuld foward passed data when sample_input_from_array is called" do
+    ob = Mulvery::Observable.from_input
+
+    ob.reduce { |reg, d|
+      reg += d
+    }
+    .subscribe { |d|
+      expect(d).to eq 15 unless d == nil
+    }
+
+    ob.sample_input_from_array([1, 2, 3, 4, 5])
+    ob.execute
+  end
+
+  it "shuld calcurates scolor-multiply of vectors" do
+    ob_1 = Mulvery::Observable.from_input
+    ob_2 = Mulvery::Observable.from_input
+
+    result = ob_1
+      .zip(ob_2)
+      .reduce do |reg, d|
+        reg += d[0] * d[1]
+      end
+      .subscribe do |data|
+        expect(data).to eq 70 unless data == nil
+      end
+
+    a_1 = [1, 2, 3, 4]
+    a_2 = [5, 6, 7, 8]
+    ob_1.sample_input_from_array(a_1)
+    ob_2.sample_input_from_array(a_2)
+    ob_1.execute
+  end
+end
+
 describe "Mulvery" do
   before do
     @instance = IMulvery::BlockDiagram.new
