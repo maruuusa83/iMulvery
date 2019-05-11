@@ -34,8 +34,10 @@ class BlockDiagram
   def build_map
     # Generate Modules
     modules = []
+    pin_conns = []
     max_width = 0
     pos_y = 10
+    observables_old = @observables.dup
     @observables.each do |observable|
       pos_x = 10
       max_height = 0
@@ -59,6 +61,15 @@ class BlockDiagram
           mod_info = {name: "reduce", inputs: {in: 1}, outputs: {out: 1}, pos: [pos_x, pos_y]}
         when :subscribe then
           mod_info = {name: "subscribe", inputs: {in: 1}, outputs: {}, pos: [pos_x, pos_y]}
+        when :map then
+          if mod.info.key?(:observables)
+            mod.info[:observables].each do |obs|
+              @observables.push(obs)
+            end
+          end
+          mod_info = {name: "map", inputs: {in: 1}, outputs: {out: 1}, pos: [pos_x, pos_y]}
+        when :dummy then
+          next
         end
 
         mr = ModuleRenderer
@@ -69,19 +80,27 @@ class BlockDiagram
             mod_info[:pos])
 
         modules.push(mr)
-
+        mod.info[:renderer] = mr
+       
+        # layout
         pos_x += mr.width + 30
         if max_height < mr.height
           max_height = mr.height
         end
-      end
 
-      if max_width < pos_x
-        max_width = pos_x
+        if max_width < pos_x
+          max_width = pos_x
+        end
+
+        if mod.type == :subscribe
+          pos_x = 0
+          pos_y += max_height + 20
+        end
       end
 
       pos_y += max_height + 20
     end
+    @observables = observables_old
 
     # Initialize Cairo
     canbus_width  = max_width + 10
@@ -93,6 +112,7 @@ class BlockDiagram
     context.set_source_rgb(0.9, 0.9, 0.9)
     context.rectangle(0, 0, canbus_width, canbus_height)
     context.fill
+    
 
     # Write Modules
     modules[0].render(context)
@@ -100,6 +120,20 @@ class BlockDiagram
       modules[i].render(context)
     end
 
+    # Write wires
+    pin_conns = []
+    @observables.each do |observable|
+      pin_conns += render_wire(observable)
+    end
+    pin_conns.each_slice(2) do |s, e|
+      break if e == nil
+      context.save do
+        context.set_source_rgb(0, 0, 0)
+        context.move_to(s[0], s[1])
+        context.line_to(e[0], e[1])
+        context.stroke
+      end
+    end
 
     # Write image to StringIO
     buffer = StringIO.new
@@ -143,6 +177,34 @@ class BlockDiagram
 
     buffer.pos = 0
     return buffer.read
+  end
+
+  def render_wire(obs)
+    pin_conns = []
+    obs.data_path.each do |mod|
+      # in
+      mr = mod.info[:renderer]
+
+      if (mr.inputs.length != 0)
+        pin_span = mr.height / (mr.inputs.length + 1)
+        pin_conns.push([mr.pos[0], mr.pos[1] + pin_span + 1])
+
+        if (mod.type == :zip)
+          mod.info[:observables].each_with_index do |obs, i|
+            pin_conns += render_wire(obs)
+            pin_conns.push([mr.pos[0], mr.pos[1] + pin_span * (i + 2) + 1])
+          end
+        end
+      end
+
+      # out
+      if (mr.outputs.length != 0)
+        pin_span = mr.height / (mr.outputs.length + 1)
+        pin_conns.push([mr.pos[0] + mr.width, mr.pos[1] + pin_span + 1])
+      end
+    end
+
+    pin_conns
   end
 
   class PlaceRouteMap
