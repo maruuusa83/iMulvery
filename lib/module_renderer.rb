@@ -5,7 +5,7 @@ module IMulvery
     PIN_LEN = 10
     PIN_WID = 2
     
-    attr_accessor :width, :height, :module_width, :module_height
+    attr_accessor :width, :height, :module_width, :module_height, :pos, :inputs, :outputs
 
     def initialize(name, inputs, outputs, pos)
       @name = name

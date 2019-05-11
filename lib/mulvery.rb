@@ -11,7 +11,11 @@ class Observable
 
   class << self
     def from_array(array)
-      Observable.new(ObservableNode.new(:source, {type: :from_array, array: array}))
+      if !array.kind_of?(Observable)
+        Observable.new(ObservableNode.new(:source, {type: :from_array, array: array}))
+      else
+        Observable.new(ObservableNode.new(:dummy, {}))
+      end
     end
 
     def from_input
@@ -32,6 +36,21 @@ class Observable
 
     _add_module(ObservableNode.new(:zip, {observables: args}))
     
+    return self
+  end
+
+  def map(&blk)
+    if @data_path[0].type == :source && @data_path[0].info[:type] == :from_array
+      # _add_module(ObservableNode.new(:map, {lambda_abs: blk}))
+      observables = []
+      @data_path[0].info[:array].each do |d|
+        observables.push(yield(d))
+      end
+      _add_module(ObservableNode.new(:map, {observables: observables}))
+    else
+      _add_module(ObservableNode.new(:map, {lambda_abs: blk}))
+    end
+
     return self
   end
 
@@ -99,6 +118,8 @@ class Observable
         else
           @reg
         end
+      when :map
+        @arg = @info[:lambda_abs].call(arg[0])
       when :subscribe
         if arg[0] != nil && arg[0] != :end_signal
           @info[:lambda_abs].call(arg[0])
